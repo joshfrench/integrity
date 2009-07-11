@@ -27,12 +27,12 @@ module Integrity
 
       def head
         log "Getting the HEAD of '#{uri}' at '#{branch}'"
-        `git ls-remote --heads #{uri} #{branch} | awk '{print $1}'`.chomp
+        `#{git_command} ls-remote --heads #{uri} #{branch} | awk '{print $1}'`.chomp
       end
 
       def info(revision)
         format  = %Q(---%n:author: %an <%ae>%n:message: >-%n  %s%n:committed_at: %ci%n)
-        YAML.load(`cd #{working_directory} && git show -s --pretty=format:"#{format}" #{revision}`)
+        YAML.load(`cd #{working_directory} && #{git_command} show -s --pretty=format:"#{format}" #{revision}`)
       end
 
       private
@@ -45,7 +45,7 @@ module Integrity
 
         def clone
           log "Cloning #{uri} to #{working_directory}"
-          `git clone #{uri} #{working_directory} &>/dev/null`
+          `#{git_command} clone #{uri} #{working_directory} &>/dev/null`
         end
 
         def checkout(treeish=nil)
@@ -56,16 +56,16 @@ module Integrity
           end
 
           log "Checking-out #{strategy}"
-          `cd #{working_directory} && git reset --hard #{strategy} &>/dev/null`
+          `cd #{working_directory} && #{git_command} reset --hard #{strategy} &>/dev/null`
         end
 
         def pull
           log "Pull-ing in #{working_directory}"
-          `cd #{working_directory} && git pull &>/dev/null`
+          `cd #{working_directory} && #{git_command} pull &>/dev/null`
         end
 
         def local_branches
-          `cd #{working_directory} && git branch`.split("\n").map {|b| b.delete("*").strip }
+          `cd #{working_directory} && #{git_command} branch`.split("\n").map {|b| b.delete("*").strip }
         end
 
         def cloned?
@@ -73,7 +73,7 @@ module Integrity
         end
 
         def on_branch?
-          File.basename(`cd #{working_directory} && git symbolic-ref HEAD &>/dev/null`).chomp == branch
+          File.basename(`cd #{working_directory} && #{git_command} symbolic-ref HEAD &>/dev/null`).chomp == branch
         end
 
         def log(message)
