@@ -79,6 +79,10 @@ module Integrity
         def log(message)
           Integrity.log("Git") { message }
         end
+
+        def git_command
+          [Integrity.config[:bin_path], 'git'].compact.join('/').squeeze('/')
+        end
     end
   end
 end
